@@ -1,0 +1,73 @@
+{
+  "hardware": {
+    "source": "serial",
+    "sampling_interval_seconds": 1.0,
+    "auto_start": false,
+    "allow_real_actuators": false,
+    "simulation_seed": 42,
+    "serial": {
+      "port": "COM3",
+      "baud_rate": 115200,
+      "timeout_seconds": 2.0,
+      "encoding": "utf-8",
+      "line_ending": "\n",
+      "input_format": "json"
+    },
+    "sensors": [
+      {
+        "name": "temperature_c",
+        "label": "Temperatura",
+        "unit": "°C",
+        "value_type": "float",
+        "source_key": "temperature",
+        "simulation_min": 18.0,
+        "simulation_max": 38.0,
+        "precision": 2
+      },
+      {
+        "name": "humidity_pct",
+        "label": "Umidità",
+        "unit": "%",
+        "value_type": "float",
+        "source_key": "humidity",
+        "simulation_min": 30.0,
+        "simulation_max": 85.0,
+        "precision": 2
+      },
+      {
+        "name": "vibration_g",
+        "label": "Vibrazione",
+        "unit": "g",
+        "value_type": "float",
+        "source_key": "vibration",
+        "simulation_min": 0.0,
+        "simulation_max": 2.5,
+        "precision": 3
+      },
+      {
+        "name": "light_lux",
+        "label": "Luce",
+        "unit": "lux",
+        "value_type": "float",
+        "source_key": "light",
+        "simulation_min": 80.0,
+        "simulation_max": 900.0,
+        "precision": 0
+      }
+    ]
+  },
+  "active_model_id": null,
+  "actuator_rules": [
+    {
+      "id": "led-demo",
+      "name": "LED dimostrativo",
+      "enabled": false,
+      "actuator": "led",
+      "operator": "gt",
+      "threshold": 30.0,
+      "command_on": "{\"actuator\":\"led\",\"value\":1}",
+      "command_off": "{\"actuator\":\"led\",\"value\":0}",
+      "cooldown_seconds": 10.0
+    }
+  ]
+}

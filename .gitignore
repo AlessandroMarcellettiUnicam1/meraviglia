@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Ambienti virtuali
+.venv/
+venv/
+env/
+
+# Configurazione locale e segreti
+.env
+.env.*
+!.env.example
+config/local*.json
+
+# Dati e artefatti generati a runtime
+data/**
+!data/.gitkeep
+uploads/
+
+# IDE / sistema operativo
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Log
+*.log
+

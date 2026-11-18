@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c1720" />
+    <meta
+      name="description"
+      content="SensorLab: laboratorio didattico per sensori Arduino, machine learning e attuatori."
+    />
+    <title>SensorLab — Arduino &amp; Machine Learning</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Vai al contenuto</a>
+
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navigazione principale">
+        <a class="brand" href="#monitor" aria-label="SensorLab, pagina iniziale">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" role="img">
+              <path d="M12 25.5A10 10 0 0 1 24.5 13" />
+              <path d="M8 31A17 17 0 0 1 30.7 9.6" />
+              <circle cx="21" cy="21" r="4" />
+              <path d="M21 25v8M17 33h8" />
+            </svg>
+          </span>
+          <span>
+            <strong>SensorLab</strong>
+            <small>Arduino + ML</small>
+          </span>
+        </a>
+
+        <nav class="nav-list">
+          <a class="nav-link is-active" href="#monitor" data-nav="monitor" aria-current="page">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 19V9m5 10V5m6 14v-7m5 7V8" /></svg>
+            <span>Monitor</span>
+          </a>
+          <a class="nav-link" href="#training" data-nav="training">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m4 17 5-5 4 3 7-8" /><path d="M15 7h5v5" /></svg>
+            <span>Laboratorio ML</span>
+          </a>
+          <a class="nav-link" href="#hardware" data-nav="hardware">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2" /><path d="M9 2v3m6-3v3M9 19v3m6-3v3M2 9h3m14 0h3M2 15h3m14 0h3" /></svg>
+            <span>Arduino</span>
+          </a>
+          <a class="nav-link" href="#actuators" data-nav="actuators">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 14a5 5 0 1 1 8 0l-1 1.4V18H9v-2.6L8 14Z" /><path d="M9 21h6M12 2V1M4.2 5.2l-.7-.7m16.3.7.7-.7M2 12H1m22 0h-1" /></svg>
+            <span>Attuatori</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="mini-status">
+            <span class="status-dot" id="sidebar-status-dot" aria-hidden="true"></span>
+            <div>
+              <strong id="sidebar-source">Connessione…</strong>
+              <small id="sidebar-sample">In attesa di dati</small>
+            </div>
+          </div>
+          <p>Ambiente didattico <span class="version">v1.0</span></p>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <header class="topbar">
+          <button class="icon-button mobile-menu" id="mobile-menu" type="button" aria-label="Apri menu" aria-expanded="false">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+          </button>
+          <div class="topbar-title">
+            <span class="eyebrow">UDA 5 · Laboratorio</span>
+            <strong id="page-title">Monitor in tempo reale</strong>
+          </div>
+          <div class="topbar-actions">
+            <span class="connection-pill is-pending" id="connection-pill">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="connection-label">Verifica sistema…</span>
+            </span>
+            <button class="icon-button" id="refresh-page" type="button" aria-label="Aggiorna dati" title="Aggiorna dati">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 6v5h-5" /><path d="M19 11a7 7 0 1 0 1 5" /></svg>
+            </button>
+          </div>
+        </header>
+
+        <main id="main-content" tabindex="-1">
+          <section class="page is-active" id="monitor-page" data-page="monitor" aria-labelledby="monitor-title">
+            <div class="page-heading">
+              <div>
+                <span class="section-kicker">Panoramica</span>
+                <h1 id="monitor-title">Dal sensore alla decisione</h1>
+                <p>Osserva i dati, l'inferenza del modello e le azioni generate nello stesso flusso.</p>
+              </div>
+              <div class="heading-actions">
+                <span class="mode-badge" id="mode-badge">Modalità simulata</span>
+                <button class="button button-primary" id="toggle-stream" type="button">
+                  <span class="button-icon" aria-hidden="true">▶</span>
+                  <span>Avvia monitor</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="flow-strip" aria-label="Flusso del sistema">
+              <div class="flow-node">
+                <span class="flow-icon sensor" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 14a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" /><path d="M12 18v3m-4 0h8M5 8a8 8 0 0 0 0 4m14-4a8 8 0 0 1 0 4" /></svg>
+                </span>
+                <div><small>01 · Input</small><strong>Sensori</strong></div>
+              </div>
+              <span class="flow-arrow" aria-hidden="true">→</span>
+              <div class="flow-node">
+                <span class="flow-icon model" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="2" /><circle cx="6" cy="17" r="2" /><circle cx="18" cy="12" r="2" /><path d="m8 7 8 4m-8 6 8-4" /></svg>
+                </span>
+                <div><small>02 · Elaborazione</small><strong>Modello ML</strong></div>
+              </div>
+              <span class="flow-arrow" aria-hidden="true">→</span>
+              <div class="flow-node">
+                <span class="flow-icon decision" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></svg>
+                </span>
+                <div><small>03 · Output</small><strong>Decisione</strong></div>
+              </div>
+              <span class="flow-arrow" aria-hidden="true">→</span>
+              <div class="flow-node">
+                <span class="flow-icon actuator" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M8 15a5 5 0 1 1 8 0l-1 1.5V19H9v-2.5L8 15Z" /><path d="M10 22h4" /></svg>
+                </span>
+                <div><small>04 · Azione</small><strong>Attuatore</strong></div>
+              </div>
+            </div>
+
+            <div class="sensor-grid" id="sensor-grid" aria-live="polite">
+              <article class="metric-card skeleton-card"><span></span><span></span><span></span></article>
+              <article class="metric-card skeleton-card"><span></span><span></span><span></span></article>
+              <article class="metric-card skeleton-card"><span></span><span></span><span></span></article>
+            </div>
+
+            <div class="dashboard-grid">
+              <article class="panel chart-panel">
+                <div class="panel-header">
+                  <div>
+                    <span class="panel-eyebrow">Segnale</span>
+                    <h2>Dati in tempo reale</h2>
+                  </div>
+                  <label class="compact-select">
+                    <span class="sr-only">Sensore visualizzato</span>
+                    <select id="chart-sensor"><option value="">Nessun sensore</option></select>
+                  </label>
+                </div>
+                <div class="chart-wrap" id="chart-wrap">
+                  <canvas id="live-chart" role="img" aria-label="Grafico delle ultime letture del sensore"></canvas>
+                  <div class="chart-empty" id="chart-empty">
+                    <svg aria-hidden="true" viewBox="0 0 48 48"><path d="M7 35 17 23l8 7 16-19" /><path d="M7 40h34" /></svg>
+                    <strong>Nessuna lettura disponibile</strong>
+                    <span>Avvia il monitor per popolare il grafico.</span>
+                  </div>
+                </div>
+                <div class="chart-footer">
+                  <span><i class="legend-dot"></i><span id="chart-legend">Valore sensore</span></span>
+                  <span id="chart-window">Ultime 0 letture</span>
+                </div>
+              </article>
+
+              <article class="panel prediction-panel">
+                <div class="panel-header">
+                  <div>
+                    <span class="panel-eyebrow">Inferenza</span>
+                    <h2>Ultima previsione</h2>
+                  </div>
+                  <span class="live-label"><i></i> live</span>
+                </div>
+                <div class="prediction-empty" id="prediction-empty">
+                  <div class="empty-orbit" aria-hidden="true"><span>ML</span></div>
+                  <strong>Nessun modello attivo</strong>
+                  <p>Allena e attiva un modello per ottenere previsioni dai sensori.</p>
+                  <a class="text-link" href="#training">Vai al laboratorio ML →</a>
+                </div>
+                <div class="prediction-result" id="prediction-result" hidden>
+                  <span class="prediction-label" id="prediction-label">Valore previsto</span>
+                  <strong class="prediction-value" id="prediction-value">—</strong>
+                  <span class="confidence" id="prediction-confidence"></span>
+                  <dl class="prediction-meta">
+                    <div><dt>Modello</dt><dd id="prediction-model">—</dd></div>
+                    <div><dt>Aggiornato</dt><dd id="prediction-time">—</dd></div>
+                  </dl>
+                </div>
+              </article>
+            </div>
+
+            <article class="panel activity-panel">
+              <div class="panel-header">
+                <div>
+                  <span class="panel-eyebrow">Tracciabilità</span>
+                  <h2>Attività recente</h2>
+                </div>
+                <a class="text-link" href="#actuators">Vedi regole →</a>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Ora</th><th>Evento</th><th>Dettaglio</th><th>Esito</th></tr></thead>
+                  <tbody id="activity-body">
+                    <tr class="empty-row"><td colspan="4">Nessuna attività registrata.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section class="page" id="training-page" data-page="training" aria-labelledby="training-title" hidden>
+            <div class="page-heading">
+              <div>
+                <span class="section-kicker">Laboratorio ML</span>
+                <h1 id="training-title">Allena un modello, passo dopo passo</h1>
+                <p>Carica un CSV oppure usa i dati dimostrativi. I controlli spiegano ogni scelta.</p>
+              </div>
+            </div>
+
+            <ol class="stepper" aria-label="Fasi di addestramento">
+              <li class="is-current" data-step-marker="1"><span>1</span><div><strong>Dati</strong><small>Carica e controlla</small></div></li>
+              <li data-step-marker="2"><span>2</span><div><strong>Modello</strong><small>Configura</small></div></li>
+              <li data-step-marker="3"><span>3</span><div><strong>Risultati</strong><small>Valuta e salva</small></div></li>
+            </ol>
+
+            <div class="training-layout">
+              <div class="training-main">
+                <article class="panel training-step" data-training-step="1">
+                  <div class="panel-header">
+                    <div><span class="step-number">01</span><h2>Scegli i dati</h2><p>Il file deve avere intestazioni nella prima riga.</p></div>
+                  </div>
+                  <div class="upload-zone" id="upload-zone">
+                    <input type="file" id="dataset-file" accept=".csv,text/csv" />
+                    <svg aria-hidden="true" viewBox="0 0 48 48"><path d="M24 32V12m-8 8 8-8 8 8" /><path d="M10 29v8a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-8" /></svg>
+                    <strong>Trascina qui il tuo CSV</strong>
+                    <span>oppure fai clic per selezionarlo · max 10 MB</span>
+                  </div>
+                  <div class="or-divider"><span>oppure</span></div>
+                  <div class="field-grid two-cols">
+                    <button class="button button-secondary full-width" data-load-demo="regression" type="button">
+                      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 3h8M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3" /><path d="M8 15h8" /></svg>
+                      Demo regressione
+                    </button>
+                    <button class="button button-secondary full-width" data-load-demo="classification" type="button">
+                      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 3h8M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3" /><path d="M8 15h8" /></svg>
+                      Demo classificazione
+                    </button>
+                  </div>
+
+                  <div class="dataset-summary" id="dataset-summary" hidden>
+                    <div class="file-tile">
+                      <span class="file-icon">CSV</span>
+                      <div><strong id="dataset-name">dataset.csv</strong><small id="dataset-shape">—</small></div>
+                      <span class="success-check" aria-label="Caricato">✓</span>
+                    </div>
+                    <div class="preview-table-wrap">
+                      <table class="preview-table" id="dataset-preview"></table>
+                    </div>
+                  </div>
+                  <div class="step-actions">
+                    <span></span>
+                    <button class="button button-primary" id="to-model-step" type="button" disabled>Configura modello →</button>
+                  </div>
+                </article>
+
+                <article class="panel training-step" data-training-step="2" hidden>
+                  <div class="panel-header">
+                    <div><span class="step-number">02</span><h2>Configura l'esperimento</h2><p>Seleziona obiettivo, algoritmo e variabili.</p></div>
+                  </div>
+                  <form id="training-form">
+                    <div class="field-grid two-cols">
+                      <fieldset class="choice-fieldset">
+                        <legend>Tipo di problema <button class="help-dot" type="button" data-tooltip="Regressione prevede un numero; classificazione sceglie una categoria." aria-label="Informazioni sul tipo di problema">?</button></legend>
+                        <label class="choice-card"><input type="radio" name="task" value="regression" checked /><span><strong>Regressione</strong><small>Prevedi un valore numerico</small></span></label>
+                        <label class="choice-card"><input type="radio" name="task" value="classification" /><span><strong>Classificazione</strong><small>Assegna una categoria</small></span></label>
+                      </fieldset>
+                      <fieldset class="choice-fieldset">
+                        <legend>Algoritmo</legend>
+                        <label class="choice-card" id="linear-choice"><input type="radio" name="algorithm" value="linear_regression" checked /><span><strong>Linear Regression</strong><small>Semplice e interpretabile</small></span></label>
+                        <label class="choice-card"><input type="radio" name="algorithm" value="xgboost" /><span><strong>XGBoost</strong><small>Flessibile e più avanzato</small></span></label>
+                        <p class="field-hint" id="algorithm-hint">Linear Regression è disponibile solo per regressione.</p>
+                      </fieldset>
+                    </div>
+
+                    <div class="form-field">
+                      <label for="target-column">Variabile obiettivo <span aria-hidden="true">*</span></label>
+                      <select id="target-column" required><option value="">Seleziona la colonna da prevedere…</option></select>
+                      <small>La colonna che il modello imparerà a predire o classificare.</small>
+                    </div>
+
+                    <fieldset class="feature-picker">
+                      <legend>Variabili di ingresso <span aria-hidden="true">*</span></legend>
+                      <p>Scegli i valori che arriveranno dai sensori. I nomi dovranno coincidere con il mapping Arduino.</p>
+                      <div id="feature-options" class="chip-options"></div>
+                    </fieldset>
+
+                    <details class="advanced-settings">
+                      <summary>Impostazioni avanzate <span>Facoltative</span></summary>
+                      <div class="advanced-body">
+                        <div class="field-grid three-cols">
+                          <div class="form-field">
+                            <label for="test-size">Dati di test: <output id="test-size-output">20%</output></label>
+                            <input id="test-size" type="range" min="10" max="40" value="20" step="5" />
+                          </div>
+                          <div class="form-field">
+                            <label for="random-state">Seme casuale</label>
+                            <input id="random-state" type="number" min="0" value="42" />
+                          </div>
+                          <div class="form-field">
+                            <label for="model-name">Nome modello</label>
+                            <input id="model-name" type="text" maxlength="60" placeholder="es. Comfort aula" />
+                          </div>
+                        </div>
+                        <div class="field-grid three-cols xgb-options" id="xgb-options" hidden>
+                          <div class="form-field"><label for="n-estimators">Numero alberi</label><input id="n-estimators" type="number" min="10" max="1000" value="100" /></div>
+                          <div class="form-field"><label for="max-depth">Profondità max</label><input id="max-depth" type="number" min="1" max="20" value="4" /></div>
+                          <div class="form-field"><label for="learning-rate">Learning rate</label><input id="learning-rate" type="number" min="0.001" max="1" step="0.01" value="0.1" /></div>
+                        </div>
+                      </div>
+                    </details>
+                    <div class="step-actions">
+                      <button class="button button-ghost" type="button" data-back-step="1">← Torna ai dati</button>
+                      <button class="button button-primary" id="train-model" type="submit">
+                        <span class="button-label">Avvia addestramento</span>
+                        <span class="button-spinner" aria-hidden="true"></span>
+                      </button>
+                    </div>
+                  </form>
+                </article>
+
+                <article class="panel training-step" data-training-step="3" hidden>
+                  <div class="result-hero">
+                    <span class="result-icon" aria-hidden="true">✓</span>
+                    <div><span class="section-kicker">Addestramento completato</span><h2 id="result-model-name">Modello pronto</h2><p id="result-summary">Valuta le metriche prima di attivarlo.</p></div>
+                  </div>
+                  <div class="metrics-grid" id="metrics-grid"></div>
+                  <div class="result-notice" id="result-notice"></div>
+                  <div class="step-actions">
+                    <button class="button button-ghost" type="button" data-back-step="2">← Modifica</button>
+                    <div>
+                      <button class="button button-secondary" id="new-experiment" type="button">Nuovo esperimento</button>
+                      <button class="button button-primary" id="activate-trained-model" type="button">Attiva sul monitor</button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+
+              <aside class="training-aside">
+                <article class="tip-card">
+                  <span class="tip-icon" aria-hidden="true">i</span>
+                  <div><strong>Non hai ancora i dati?</strong><p>Il dataset dimostrativo simula temperatura, umidità e vibrazioni. Puoi sostituirlo più avanti senza cambiare l'app.</p></div>
+                </article>
+                <article class="panel saved-models-panel">
+                  <div class="panel-header"><div><span class="panel-eyebrow">Archivio</span><h2>Modelli salvati</h2></div><span class="count-badge" id="model-count">0</span></div>
+                  <div id="model-list" class="model-list"><div class="inline-empty">Nessun modello disponibile.</div></div>
+                </article>
+              </aside>
+            </div>
+          </section>
+
+          <section class="page" id="hardware-page" data-page="hardware" aria-labelledby="hardware-title" hidden>
+            <div class="page-heading">
+              <div>
+                <span class="section-kicker">Configurazione hardware</span>
+                <h1 id="hardware-title">Prepara il collegamento Arduino</h1>
+                <p>Oggi puoi simulare i sensori; domani basterà configurare la porta seriale.</p>
+              </div>
+              <button class="button button-secondary" id="test-hardware" type="button">
+                <span class="button-icon" aria-hidden="true">↯</span> Testa connessione
+              </button>
+            </div>
+
+            <div class="safety-banner info-banner">
+              <span aria-hidden="true">i</span>
+              <div><strong>La simulazione è attiva per impostazione predefinita.</strong><p>La modalità seriale non invia comandi finché non abiliti esplicitamente gli attuatori.</p></div>
+            </div>
+
+            <div class="hardware-layout">
+              <form class="panel config-panel" id="hardware-form">
+                <div class="panel-header"><div><span class="panel-eyebrow">Sorgente dati</span><h2>Connessione</h2></div><span class="unsaved-badge" id="config-dirty" hidden>Modifiche non salvate</span></div>
+                <fieldset class="source-options">
+                  <legend class="sr-only">Sorgente dei dati</legend>
+                  <label class="source-card">
+                    <input type="radio" name="source-mode" value="simulation" checked />
+                    <span class="source-icon simulation" aria-hidden="true">∿</span>
+                    <span><strong>Simulatore</strong><small>Dati sintetici, nessun hardware richiesto</small></span>
+                    <i aria-hidden="true"></i>
+                  </label>
+                  <label class="source-card">
+                    <input type="radio" name="source-mode" value="serial" />
+                    <span class="source-icon serial" aria-hidden="true">USB</span>
+                    <span><strong>Arduino seriale</strong><small>Leggi JSON dalla porta USB</small></span>
+                    <i aria-hidden="true"></i>
+                  </label>
+                </fieldset>
+
+                <div id="simulation-settings" class="settings-group">
+                  <div class="group-heading"><h3>Parametri simulazione</h3><p>Definiscono il ritmo delle letture generate.</p></div>
+                  <div class="field-grid two-cols">
+                    <div class="form-field"><label for="simulation-interval">Intervallo (ms)</label><input id="simulation-interval" type="number" min="250" max="60000" step="250" value="2000" /></div>
+                    <div class="form-field"><label for="simulation-seed">Seme casuale</label><input id="simulation-seed" type="number" min="0" value="42" /></div>
+                  </div>
+                </div>
+
+                <div id="serial-settings" class="settings-group" hidden>
+                  <div class="group-heading"><h3>Parametri porta seriale</h3><p>Devono coincidere con lo sketch caricato su Arduino.</p></div>
+                  <div class="field-grid two-cols">
+                    <div class="form-field"><label for="serial-port">Porta</label><input id="serial-port" type="text" placeholder="COM3 oppure /dev/ttyACM0" /></div>
+                    <div class="form-field"><label for="baud-rate">Baud rate</label><select id="baud-rate"><option>9600</option><option>19200</option><option>57600</option><option selected>115200</option></select></div>
+                    <div class="form-field"><label for="serial-timeout">Timeout (s)</label><input id="serial-timeout" type="number" min="0.1" max="30" step="0.1" value="2" /></div>
+                    <div class="form-field"><label for="line-ending">Fine riga</label><select id="line-ending"><option value="LF" selected>LF (\n)</option><option value="CRLF">CRLF (\r\n)</option></select></div>
+                  </div>
+                </div>
+
+                <div class="settings-group">
+                  <div class="group-heading"><h3>Mapping sensori</h3><p>Associa le chiavi JSON inviate da Arduino ai nomi usati dal modello.</p></div>
+                  <div class="mapping-header"><span>Chiave Arduino</span><span>Nome nel modello</span><span>Unità</span><span></span></div>
+                  <div id="sensor-mappings" class="mapping-list"></div>
+                  <button class="button button-ghost button-small" id="add-mapping" type="button">+ Aggiungi sensore</button>
+                </div>
+
+                <div class="settings-group actuator-master-setting">
+                  <div>
+                    <h3>Invio comandi agli attuatori</h3>
+                    <p>Consenti al backend di scrivere sulla seriale quando una regola scatta.</p>
+                  </div>
+                  <label class="switch"><input id="hardware-output-enabled" type="checkbox" /><span></span><em>Disattivato</em></label>
+                </div>
+
+                <div class="form-footer">
+                  <button class="button button-ghost" id="reset-config" type="button">Ripristina</button>
+                  <button class="button button-primary" type="submit">Salva configurazione</button>
+                </div>
+              </form>
+
+              <aside class="hardware-aside">
+                <article class="panel protocol-panel">
+                  <div class="panel-header"><div><span class="panel-eyebrow">Protocollo</span><h2>Formato atteso</h2></div><button class="icon-button" id="copy-protocol" type="button" aria-label="Copia esempio" title="Copia esempio"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2" /><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" /></svg></button></div>
+                  <p>Invia una riga JSON per campione:</p>
+                  <pre id="protocol-example"><code>{
+  "temp": 22.6,
+  "humidity": 48.2,
+  "vibration": 0.14
+}</code></pre>
+                  <div class="protocol-note"><span aria-hidden="true">✓</span><p>Le chiavi vengono tradotte usando il mapping qui a sinistra.</p></div>
+                </article>
+                <article class="panel connection-check" id="connection-check">
+                  <div class="connection-illustration" aria-hidden="true"><span>USB</span><i></i></div>
+                  <h2>Pronto per il test</h2>
+                  <p>Salva i parametri e verifica che la sorgente risponda correttamente.</p>
+                  <div id="test-result" class="test-result" hidden></div>
+                </article>
+              </aside>
+            </div>
+          </section>
+
+          <section class="page" id="actuators-page" data-page="actuators" aria-labelledby="actuators-title" hidden>
+            <div class="page-heading">
+              <div>
+                <span class="section-kicker">Automazione</span>
+                <h1 id="actuators-title">Regole per gli attuatori</h1>
+                <p>Trasforma una previsione in un comando controllato e sempre tracciabile.</p>
+              </div>
+              <button class="button button-primary" id="new-rule" type="button">+ Nuova regola</button>
+            </div>
+
+            <div class="safety-banner warning-banner" id="actuator-safety-banner">
+              <span aria-hidden="true">!</span>
+              <div><strong>Modalità sicura: solo simulazione.</strong><p>Le regole vengono valutate e registrate, ma nessun comando fisico viene inviato.</p></div>
+              <a class="button button-small button-secondary" href="#hardware">Configura hardware</a>
+            </div>
+
+            <div class="actuator-stats">
+              <article><span class="stat-icon rules" aria-hidden="true">⌘</span><div><strong id="rules-total">0</strong><small>Regole totali</small></div></article>
+              <article><span class="stat-icon enabled" aria-hidden="true">✓</span><div><strong id="rules-enabled">0</strong><small>Regole attive</small></div></article>
+              <article><span class="stat-icon triggered" aria-hidden="true">↯</span><div><strong id="rules-triggered">0</strong><small>Attivazioni oggi</small></div></article>
+              <article><span class="stat-icon safe" aria-hidden="true">◇</span><div><strong id="output-mode">DRY RUN</strong><small>Modalità uscita</small></div></article>
+            </div>
+
+            <article class="panel rules-panel">
+              <div class="panel-header"><div><span class="panel-eyebrow">Logica</span><h2>Regole configurate</h2></div><button class="button button-ghost button-small" id="reload-rules" type="button">Aggiorna</button></div>
+              <div id="rules-list" class="rules-list"><div class="large-empty"><span aria-hidden="true">⌘</span><strong>Nessuna regola configurata</strong><p>Crea la prima regola per collegare una previsione a un attuatore.</p><button class="button button-secondary" type="button" data-open-rule>+ Crea una regola</button></div></div>
+            </article>
+
+            <article class="panel audit-panel">
+              <div class="panel-header"><div><span class="panel-eyebrow">Registro</span><h2>Eventi attuatori</h2></div></div>
+              <div class="table-wrap"><table><thead><tr><th>Data e ora</th><th>Regola</th><th>Previsione</th><th>Comando</th><th>Modalità</th></tr></thead><tbody id="actuator-events-body"><tr class="empty-row"><td colspan="5">Nessun evento attuatore.</td></tr></tbody></table></div>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <dialog id="rule-dialog" aria-labelledby="rule-dialog-title">
+      <form method="dialog" class="dialog-card" id="rule-form">
+        <div class="dialog-header">
+          <div><span class="section-kicker">Automazione</span><h2 id="rule-dialog-title">Nuova regola</h2></div>
+          <button class="icon-button" value="cancel" aria-label="Chiudi finestra" formnovalidate><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
+        </div>
+        <input type="hidden" id="rule-id" />
+        <div class="dialog-body">
+          <div class="form-field"><label for="rule-name">Nome regola <span aria-hidden="true">*</span></label><input id="rule-name" required maxlength="80" placeholder="es. Accendi ventola" /></div>
+          <div class="rule-sentence">
+            <span>Se la previsione</span>
+            <select id="rule-operator" aria-label="Operatore"><option value=">">è maggiore di</option><option value=">=">è maggiore o uguale a</option><option value="<">è minore di</option><option value="<=">è minore o uguale a</option><option value="==">è uguale a</option><option value="!=">è diversa da</option></select>
+            <input id="rule-threshold" required placeholder="es. 28 oppure allarme" aria-label="Soglia o classe" />
+          </div>
+          <div class="field-grid two-cols">
+            <div class="form-field"><label for="actuator-name">Attuatore <span aria-hidden="true">*</span></label><input id="actuator-name" required placeholder="es. ventola" /></div>
+            <div class="form-field"><label for="actuator-pin">Pin / canale</label><input id="actuator-pin" placeholder="es. 9" /></div>
+          </div>
+          <div class="form-field"><label for="actuator-command">Comando <span aria-hidden="true">*</span></label><input id="actuator-command" required placeholder='es. {"fan": 1}' /><small>Stringa che verrà inviata sulla seriale seguita da una nuova riga.</small></div>
+          <div class="form-field"><label for="actuator-command-off">Comando di spegnimento</label><input id="actuator-command-off" placeholder='es. {"fan": 0}' /><small>Consigliato in simulazione; obbligatorio prima di abilitare uscite fisiche reali.</small></div>
+          <label class="inline-toggle"><input id="rule-enabled" type="checkbox" checked /><span>Regola attiva</span><small>Puoi disattivarla senza eliminarla.</small></label>
+        </div>
+        <div class="dialog-footer"><button class="button button-ghost" value="cancel" formnovalidate>Annulla</button><button class="button button-primary" id="save-rule" value="default">Salva regola</button></div>
+      </form>
+    </dialog>
+
+    <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+    <div class="loading-overlay" id="loading-overlay" hidden><div class="loader"></div><span>Preparazione dell'app…</span></div>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
